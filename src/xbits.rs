@@ -138,7 +138,7 @@ impl std::fmt::Display for BitsRef<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut s = String::new();
         for byte in self.0.iter() {
-            s.push_str(&format!("{:08b} ", byte));
+            s.push_str(&format!("{byte:08b} "));
         }
         write!(f, "{}", s.trim())
     }
@@ -148,7 +148,7 @@ impl std::fmt::Display for BitsMut<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut s = String::new();
         for byte in self.0.iter() {
-            s.push_str(&format!("{:08b} ", byte));
+            s.push_str(&format!("{byte:08b} "));
         }
         write!(f, "{}", s.trim())
     }
@@ -165,11 +165,7 @@ impl std::ops::Index<usize> for BitsRef<'_> {
         let bit_index = index % 8;
         let byte = self.0[byte_index];
         let bit = (byte >> (7 - bit_index)) & 1;
-        if bit == 1 {
-            &true
-        } else {
-            &false
-        }
+        if bit == 1 { &true } else { &false }
     }
 }
 
