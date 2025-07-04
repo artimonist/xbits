@@ -1,15 +1,16 @@
 [package]
-name = "nbits"
-version = "0.8.1"
+name = "xbits"
+version = "0.1.0"
+edition = "2024"
+
 authors = ["Artimonist <artimonist@gmail.com>"]
 description = "Bits operations on [u8]"
 homepage = "https://artimonist.org/"
-repository = "https://github.com/artimonist/nbits/"
+repository = "https://github.com/artimonist/xbits/"
 
 license = "MIT"
 keywords = ["bitcoin", "wallet", "mnemonic", "crypto", "base64"]
 categories = ["cryptography"]
-edition = "2021"
 crate-type = ["lib"]
 
 [dependencies]

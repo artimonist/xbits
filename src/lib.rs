@@ -6,8 +6,8 @@
 //!
 //! # Examples
 //! ```
-//! use nbits::XBits;
-//! use nbits::FromBits;
+//! use xbits::XBits;
+//! use xbits::FromBits;
 //!
 //! assert_eq!(vec![0b1111_1111, 0b1100_0000].bits().all_one(), false);
 //! assert_eq!(vec![0b1111_1111, 0b1100_0000].bits().trailing_zeros(), 6);
@@ -49,11 +49,9 @@
 //! ```
 
 pub mod core;
-mod nbits;
 mod xbits;
 
 pub use core::FromBits;
-pub use nbits::NBits;
 pub use xbits::{BitsMut, BitsRef, XBits};
 
 /// Assert overflow of parameter
@@ -67,7 +65,7 @@ macro_rules! assert_overflow {
         let (name, param, n, min, max) = ($name, stringify!($n), $n, $min, $max);
         assert!(
             $min as usize <= $n as usize && $n as usize <= $max as usize,
-            "[nbits] {name} parameter `{param}` overflow: `{n}` not in `{min}..={max}`",
+            "[xbits] {name} parameter `{param}` overflow: `{n}` not in `{min}..={max}`",
         );
     };
 }

@@ -1,6 +1,6 @@
 #![cfg(test)]
 use hex::FromHex;
-use nbits::core::{BitIterator, FromBits};
+use xbits::core::{BitIterator, FromBits};
 
 #[test]
 fn test_bit_chunks() {
