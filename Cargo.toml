@@ -1,0 +1,18 @@
+[package]
+name = "nbits"
+version = "0.8.1"
+authors = ["Artimonist <artimonist@gmail.com>"]
+description = "Bits operations on [u8]"
+homepage = "https://artimonist.org/"
+repository = "https://github.com/artimonist/nbits/"
+
+license = "MIT"
+keywords = ["bitcoin", "wallet", "mnemonic", "crypto", "base64"]
+categories = ["cryptography"]
+edition = "2021"
+crate-type = ["lib"]
+
+[dependencies]
+
+[dev-dependencies]
+hex = "0.4.3"
