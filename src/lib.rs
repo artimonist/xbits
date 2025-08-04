@@ -38,12 +38,12 @@
 //! );
 //!
 //! assert_eq!(
-//!     Vec::from_bits_chunk([0b11_1111_u8, 0b11_1111, 0b11_1111].into_iter(), 6),
+//!     Vec::from_bit_chunks([0b11_1111_u8, 0b11_1111, 0b11_1111].into_iter(), 6),
 //!     vec![0b1111_1111, 0b1111_1111, 0b1100_0000]
 //! );
 //!
 //! assert_eq!(
-//!     Vec::from_bits_chunk([0b1111_u16, 0b1111, 0b1111].into_iter(), 6),
+//!     Vec::from_bit_chunks([0b1111_u16, 0b1111, 0b1111].into_iter(), 6),
 //!     vec![0b001111_00, 0b1111_0011, 0b1100_0000]
 //! );
 //! ```
@@ -60,7 +60,7 @@ pub use xbits::{AsBits, AsBitsMut, BitsMut, BitsRef};
 /// - $min: minimum value
 /// - $max: maximum value
 /// - $name: function name
-macro_rules! assert_overflow {
+macro_rules! assert_range {
     ($n: ident, $min: expr, $max: expr, $name: literal) => {
         let (name, param, n, min, max) = ($name, stringify!($n), $n, $min, $max);
         assert!(
@@ -69,4 +69,4 @@ macro_rules! assert_overflow {
         );
     };
 }
-pub(crate) use assert_overflow;
+pub(crate) use assert_range;

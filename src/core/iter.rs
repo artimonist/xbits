@@ -1,4 +1,4 @@
-use crate::assert_overflow;
+use crate::assert_range;
 
 /**
  * Bits iterator implementation on `[u8]`
@@ -50,7 +50,7 @@ impl BitIterator for [u8] {
         T: TryFrom<u64> + Default,
     {
         let valid_size = (std::mem::size_of::<T>() * 8).min(32);
-        assert_overflow!(n, 1, valid_size, "bit_chunks");
+        assert_range!(n, 1, valid_size, "bit_chunks");
 
         // enumerate bytes window of 64 bits width, split item values from those windows
         let bit_mask: u64 = (0..n).fold(0, |acc, v| acc | (1 << v));
@@ -95,15 +95,15 @@ pub trait FromBits {
     /// ```
     /// # use xbits::FromBits;
     /// assert_eq!(
-    ///     Vec::from_bits_chunk([0b11_1111_u8, 0b11_1111, 0b11_1111].into_iter(),6),
+    ///     Vec::from_bit_chunks([0b11_1111_u8, 0b11_1111, 0b11_1111].into_iter(),6),
     ///     vec![0b1111_1111, 0b1111_1111, 0b1100_0000]
     /// );
     /// assert_eq!(
-    ///     Vec::from_bits_chunk([0b1111_u16, 0b1111, 0b1111].into_iter(), 6),
+    ///     Vec::from_bit_chunks([0b1111_u16, 0b1111, 0b1111].into_iter(), 6),
     ///     vec![0b001111_00, 0b1111_0011, 0b1100_0000]
     /// );
     /// ```
-    fn from_bits_chunk<T, U>(chunks: U, n: usize) -> Self
+    fn from_bit_chunks<T, U>(chunks: U, n: usize) -> Self
     where
         T: TryInto<u64>,
         U: Iterator<Item = T>;
@@ -130,12 +130,12 @@ impl FromBits for Vec<u8> {
             .collect()
     }
 
-    fn from_bits_chunk<T, U>(chunks: U, n: usize) -> Self
+    fn from_bit_chunks<T, U>(chunks: U, n: usize) -> Self
     where
         T: TryInto<u64>,
         U: Iterator<Item = T>,
     {
-        assert_overflow!(n, 1, 32, "from_chunks");
+        assert_range!(n, 1, 32, "from_chunks");
         let bit_mask: u64 = (0..n).fold(0, |acc, v| acc | (1 << v));
 
         let mut rem = TinyBits::new(0, 0);
