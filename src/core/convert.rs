@@ -29,6 +29,10 @@ impl Bits {
     pub fn capacity(&self) -> usize {
         self.data.len() * 8
     }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.data
+    }
 }
 
 macro_rules! impl_from {
@@ -48,6 +52,15 @@ impl_from!(u8);
 impl_from!(u16);
 impl_from!(u32);
 impl_from!(u64);
+impl_from!(u128);
+impl_from!(usize);
+
+impl_from!(i8);
+impl_from!(i16);
+impl_from!(i32);
+impl_from!(i64);
+impl_from!(i128);
+impl_from!(isize);
 
 #[cfg(test)]
 mod tests {
