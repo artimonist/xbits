@@ -1,20 +1,42 @@
-use super::core::{BitIterator, Bitwise};
-
 /**
- * `XBits` trait provides a way to work with bit-level operations on byte arrays.
+ * `AsBits` and `AsBitsMut` trait provides a way to work with bit-level operations on byte arrays.
  * It allows you to get a reference to the bits in a byte array and perform operations
  * such as checking if all bits are one or zero, and iterating over the bits.
  */
-pub trait XBits {
-    fn bits(&self) -> BitsRef;
-    fn bits_mut(&mut self) -> BitsMut;
+use super::core::{BitIterator, Bitwise};
+
+pub trait AsBits {
+    fn as_bits(&self) -> BitsRef;
 }
 
-impl XBits for [u8] {
-    fn bits(&self) -> BitsRef {
+pub trait AsBitsMut {
+    fn as_bits_mut(&mut self) -> BitsMut;
+}
+
+impl AsBits for [u8] {
+    #[inline(always)]
+    fn as_bits(&self) -> BitsRef {
         BitsRef(self)
     }
-    fn bits_mut(&mut self) -> BitsMut {
+}
+
+impl AsBitsMut for [u8] {
+    #[inline(always)]
+    fn as_bits_mut(&mut self) -> BitsMut {
+        BitsMut(self)
+    }
+}
+
+impl AsBits for Vec<u8> {
+    #[inline(always)]
+    fn as_bits(&self) -> BitsRef {
+        BitsRef(self)
+    }
+}
+
+impl AsBitsMut for Vec<u8> {
+    #[inline(always)]
+    fn as_bits_mut(&mut self) -> BitsMut {
         BitsMut(self)
     }
 }
@@ -86,35 +108,38 @@ impl BitsMut<'_> {
     }
 
     #[inline(always)]
-    pub fn or(&mut self, other: BitsRef) -> &mut Self {
-        self.0.bit_be_or(other.0);
+    pub fn or(&mut self, other: impl AsBits) -> &mut Self {
+        self.0.bit_be_or(other.as_bits().0);
         self
     }
 
     #[inline(always)]
-    pub fn and(&mut self, other: BitsRef) -> &mut Self {
-        self.0.bit_be_and(other.0);
+    pub fn and(&mut self, other: impl AsBits) -> &mut Self {
+        self.0.bit_be_and(other.as_bits().0);
         self
     }
 
     #[inline(always)]
-    pub fn xor(&mut self, other: BitsRef) -> &mut Self {
-        self.0.bit_be_xor(other.0);
+    pub fn xor(&mut self, other: impl AsBits) -> &mut Self {
+        self.0.bit_be_xor(other.as_bits().0);
         self
     }
 
+    #[deprecated(note = "Use `or` instead")]
     #[inline(always)]
     pub fn be_or<U: Into<u64>>(&mut self, other: U) -> &mut Self {
         self.0.bit_be_or(&other.into().to_be_bytes());
         self
     }
 
+    #[deprecated(note = "Use `and` instead")]
     #[inline(always)]
     pub fn be_and<U: Into<u64>>(&mut self, other: U) -> &mut Self {
         self.0.bit_be_and(&other.into().to_be_bytes());
         self
     }
 
+    #[deprecated(note = "Use `xor` instead")]
     #[inline(always)]
     pub fn be_xor<U: Into<u64>>(&mut self, other: U) -> &mut Self {
         self.0.bit_be_xor(&other.into().to_be_bytes());
@@ -171,20 +196,34 @@ impl std::ops::Index<usize> for BitsRef<'_> {
 
 #[cfg(test)]
 mod tests {
-    use super::XBits;
+    use super::{AsBits, AsBitsMut};
+    use crate::ToBits;
 
     #[test]
     fn test_bits() {
         let mut buf = [0b00000001_u8, 0b00000010, 0b00000100];
-        let _xbits = buf.bits();
-        let _xbits = buf[0..2].bits_mut().or(1024_u16.to_be_bytes().bits());
+        let _xbits = buf.as_bits();
+        let _xbits = buf[0..2].as_bits_mut().or(1024_u16.to_bits());
 
         for i in 0..buf.len() {
-            assert_eq!(buf.bits()[i], buf.bits().iter().nth(i).unwrap());
+            assert_eq!(buf.as_bits()[i], buf.as_bits().iter().nth(i).unwrap());
         }
 
         let mut vs = [0b1111_1111, 0b1100_0000];
-        vs.bits_mut().reverse();
+        vs.as_bits_mut().reverse();
         assert_eq!(vs, [0b0000_0011, 0b1111_1111]);
+    }
+
+    #[test]
+    fn test_bitwise() {
+        let mut buf = [0b00000001_u8, 0b00000010, 0b00000100];
+        let mut bits = buf.as_bits_mut();
+        bits.shl(1)
+            .or(0b11111111_u8.to_bits())
+            .xor(0b11110000_u8.to_bits());
+        assert_eq!(
+            bits.to_ref().as_bytes(),
+            &[0b00000010_u8, 0b00000100, 0b00001111]
+        );
     }
 }

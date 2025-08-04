@@ -6,29 +6,29 @@
 //!
 //! # Examples
 //! ```
-//! use xbits::XBits;
+//! use xbits::{AsBits, AsBitsMut};
 //! use xbits::FromBits;
 //!
-//! assert_eq!(vec![0b1111_1111, 0b1100_0000].bits().all_one(), false);
-//! assert_eq!(vec![0b1111_1111, 0b1100_0000].bits().trailing_zeros(), 6);
+//! assert_eq!(vec![0b1111_1111, 0b1100_0000].as_bits().all_one(), false);
+//! assert_eq!(vec![0b1111_1111, 0b1100_0000].as_bits().trailing_zeros(), 6);
 //!
 //! assert_eq!(
-//!     [0b1111_0000_u8].bits().iter().collect::<Vec<bool>>(),
+//!     [0b1111_0000_u8].as_bits().iter().collect::<Vec<bool>>(),
 //!     vec![true, true, true, true, false, false, false, false]
 //! );
 //!
 //! assert_eq!(
-//!     vec![0b1111_1111, 0b1111_1111].bits().chunks(6).collect::<Vec<u8>>(),
+//!     vec![0b1111_1111, 0b1111_1111].as_bits().chunks(6).collect::<Vec<u8>>(),
 //!     vec![0b11_1111, 0b11_1111, 0b11_1100]
 //! );
 //!
 //! assert_eq!(
-//!     vec![0b1111_1111; 3].bits().chunks(11).collect::<Vec<u16>>(),
+//!     vec![0b1111_1111; 3].as_bits().chunks(11).collect::<Vec<u16>>(),
 //!     vec![0b111_1111_1111, 0b111_1111_1111, 0b110_0000_0000]
 //! );
 //!
 //! assert_eq!(
-//!    vec![0b1111_1111, 0b1100_0000].bits_mut().reverse().to_ref().as_bytes(),
+//!    vec![0b1111_1111, 0b1100_0000].as_bits_mut().reverse().to_ref().as_bytes(),
 //!    vec![0b0000_0011, 0b1111_1111]
 //! );
 //!
@@ -51,8 +51,8 @@
 pub mod core;
 mod xbits;
 
-pub use core::{Bits, FromBits};
-pub use xbits::{BitsMut, BitsRef, XBits};
+pub use core::{FromBits, ToBits};
+pub use xbits::{AsBits, AsBitsMut, BitsMut, BitsRef};
 
 /// Assert overflow of parameter
 /// # Parameters
