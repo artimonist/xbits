@@ -51,7 +51,7 @@
 pub mod core;
 mod xbits;
 
-pub use core::FromBits;
+pub use core::{Bits, FromBits};
 pub use xbits::{BitsMut, BitsRef, XBits};
 
 /// Assert overflow of parameter

@@ -83,6 +83,7 @@ pub trait Bitwise {
     /// # use xbits::core::Bitwise;
     /// assert_eq!([0b0011_0011, 0b0011_0011].bit_le_and(&[0b1111_1111]), [0b0011_0011, 0b0000_0000]);
     /// ```
+    #[deprecated(since = "0.9.0", note = "little endian is not recommended")]
     fn bit_le_and(&mut self, other: &Self) -> &mut Self;
 
     /// Bitwise operator `|` for little-endian
@@ -91,6 +92,7 @@ pub trait Bitwise {
     /// # use xbits::core::Bitwise;
     /// assert_eq!([0b0011_0011, 0b0011_0011].bit_le_or(&[0b1111_1111]), [0b1111_1111, 0b0011_0011]);
     /// ```
+    #[deprecated(since = "0.9.0", note = "little endian is not recommended")]
     fn bit_le_or(&mut self, other: &Self) -> &mut Self;
 
     /// Bitwise operator `^` for little-endian
@@ -99,6 +101,7 @@ pub trait Bitwise {
     /// # use xbits::core::Bitwise;
     /// assert_eq!([0b0011_0011, 0b0011_0011].bit_le_xor(&[0b1111_1111]), [0b1100_1100, 0b0011_0011]);
     /// ```
+    #[deprecated(since = "0.9.0", note = "little endian is not recommended")]
     fn bit_le_xor(&mut self, other: &Self) -> &mut Self;
 
     /// Check if all bits are zero
