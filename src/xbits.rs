@@ -96,64 +96,64 @@ impl BitsMut<'_> {
     }
 
     #[inline(always)]
-    pub fn shl(&mut self, n: usize) -> &mut Self {
+    pub fn shl(self, n: usize) -> Self {
         self.0.bit_shl(n);
         self
     }
 
     #[inline(always)]
-    pub fn shr(&mut self, n: usize) -> &mut Self {
+    pub fn shr(self, n: usize) -> Self {
         self.0.bit_shr(n);
         self
     }
 
     #[inline(always)]
-    pub fn or(&mut self, other: impl AsBits) -> &mut Self {
+    pub fn or(self, other: impl AsBits) -> Self {
         self.0.bit_be_or(other.as_bits().0);
         self
     }
 
     #[inline(always)]
-    pub fn and(&mut self, other: impl AsBits) -> &mut Self {
+    pub fn and(self, other: impl AsBits) -> Self {
         self.0.bit_be_and(other.as_bits().0);
         self
     }
 
     #[inline(always)]
-    pub fn xor(&mut self, other: impl AsBits) -> &mut Self {
+    pub fn xor(self, other: impl AsBits) -> Self {
         self.0.bit_be_xor(other.as_bits().0);
         self
     }
 
     #[deprecated(note = "Use `or` instead")]
     #[inline(always)]
-    pub fn be_or<U: Into<u64>>(&mut self, other: U) -> &mut Self {
+    pub fn be_or<U: Into<u64>>(self, other: U) -> Self {
         self.0.bit_be_or(&other.into().to_be_bytes());
         self
     }
 
     #[deprecated(note = "Use `and` instead")]
     #[inline(always)]
-    pub fn be_and<U: Into<u64>>(&mut self, other: U) -> &mut Self {
+    pub fn be_and<U: Into<u64>>(self, other: U) -> Self {
         self.0.bit_be_and(&other.into().to_be_bytes());
         self
     }
 
     #[deprecated(note = "Use `xor` instead")]
     #[inline(always)]
-    pub fn be_xor<U: Into<u64>>(&mut self, other: U) -> &mut Self {
+    pub fn be_xor<U: Into<u64>>(self, other: U) -> Self {
         self.0.bit_be_xor(&other.into().to_be_bytes());
         self
     }
 
     #[inline(always)]
-    pub fn not(&mut self) -> &mut Self {
+    pub fn not(self) -> Self {
         self.0.bit_not();
         self
     }
 
     #[inline(always)]
-    pub fn reverse(&mut self) -> &mut Self {
+    pub fn reverse(self) -> Self {
         self.0.bit_reverse();
         self
     }
@@ -217,13 +217,10 @@ mod tests {
     #[test]
     fn test_bitwise() {
         let mut buf = [0b00000001_u8, 0b00000010, 0b00000100];
-        let mut bits = buf.as_bits_mut();
-        bits.shl(1)
+        buf.as_bits_mut()
+            .shl(1)
             .or(0b11111111_u8.to_bits())
             .xor(0b11110000_u8.to_bits());
-        assert_eq!(
-            bits.to_ref().as_bytes(),
-            &[0b00000010_u8, 0b00000100, 0b00001111]
-        );
+        assert_eq!(buf, [0b00000010_u8, 0b00000100, 0b00001111]);
     }
 }
