@@ -131,6 +131,18 @@ pub trait Bitwise {
     /// assert_eq!([0b0000_0000, 0b0000_0000].bit_trailing_zeros(), 16);
     /// ```
     fn bit_trailing_zeros(&self) -> usize;
+
+    /// Set all bits to `1`
+    fn bit_fill(&mut self) -> &mut Self;
+
+    /// Set all bits to `0`
+    fn bit_clear(&mut self) -> &mut Self;
+
+    /// Get the value of a specific bit
+    fn bit_get(&self, index: usize) -> bool;
+
+    /// Set the value of a specific bit
+    fn bit_set(&mut self, index: usize, value: bool) -> &mut Self;
 }
 
 impl Bitwise for [u8] {
@@ -266,6 +278,32 @@ impl Bitwise for [u8] {
             Some(n) => (self.len() - 1 - n) * 8 + self[n].trailing_zeros() as usize,
             None => self.len() * 8,
         }
+    }
+
+    #[inline]
+    fn bit_fill(&mut self) -> &mut Self {
+        self.iter_mut().for_each(|b| *b = 0xff);
+        self
+    }
+
+    #[inline]
+    fn bit_clear(&mut self) -> &mut Self {
+        self.iter_mut().for_each(|b| *b = 0);
+        self
+    }
+
+    #[inline]
+    fn bit_get(&self, index: usize) -> bool {
+        self[index / 8] & (1 << (7 - index % 8)) != 0
+    }
+
+    #[inline]
+    fn bit_set(&mut self, index: usize, value: bool) -> &mut Self {
+        match value {
+            true => self[index / 8] |= 1 << (7 - index % 8),
+            false => self[index / 8] &= !(1 << (7 - index % 8)),
+        }
+        self
     }
 }
 
