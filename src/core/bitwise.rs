@@ -132,17 +132,17 @@ pub trait Bitwise {
     /// ```
     fn bit_trailing_zeros(&self) -> usize;
 
-    /// Set all bits to `1`
-    fn bit_fill(&mut self) -> &mut Self;
-
-    /// Set all bits to `0`
-    fn bit_clear(&mut self) -> &mut Self;
-
     /// Get the value of a specific bit
     fn bit_get(&self, index: usize) -> bool;
 
     /// Set the value of a specific bit
     fn bit_set(&mut self, index: usize, value: bool) -> &mut Self;
+
+    /// Set all bits to `value`
+    fn bit_fill(&mut self, value: bool) -> &mut Self;
+
+    /// Format the bits as a string
+    fn bit_fmt(&self) -> String;
 }
 
 impl Bitwise for [u8] {
@@ -190,20 +190,17 @@ impl Bitwise for [u8] {
         false
     }
 
-    #[inline]
     fn bit_reverse(&mut self) -> &mut Self {
         self.reverse();
         self.iter_mut().for_each(|a| *a = a.reverse_bits());
         self
     }
 
-    #[inline]
     fn bit_not(&mut self) -> &mut Self {
         self.iter_mut().for_each(|a| *a = !*a);
         self
     }
 
-    #[inline]
     fn bit_be_and(&mut self, other: &Self) -> &mut Self {
         self.iter_mut()
             .rev()
@@ -212,7 +209,6 @@ impl Bitwise for [u8] {
         self
     }
 
-    #[inline]
     fn bit_be_or(&mut self, other: &Self) -> &mut Self {
         self.iter_mut()
             .rev()
@@ -221,7 +217,6 @@ impl Bitwise for [u8] {
         self
     }
 
-    #[inline]
     fn bit_be_xor(&mut self, other: &Self) -> &mut Self {
         self.iter_mut()
             .rev()
@@ -230,7 +225,6 @@ impl Bitwise for [u8] {
         self
     }
 
-    #[inline]
     fn bit_le_and(&mut self, other: &Self) -> &mut Self {
         self.iter_mut()
             .zip(other.iter().chain(std::iter::repeat(&0)))
@@ -238,7 +232,6 @@ impl Bitwise for [u8] {
         self
     }
 
-    #[inline]
     fn bit_le_or(&mut self, other: &Self) -> &mut Self {
         self.iter_mut()
             .zip(other.iter().chain(std::iter::repeat(&0)))
@@ -246,7 +239,6 @@ impl Bitwise for [u8] {
         self
     }
 
-    #[inline]
     fn bit_le_xor(&mut self, other: &Self) -> &mut Self {
         self.iter_mut()
             .zip(other.iter().chain(std::iter::repeat(&0)))
@@ -254,17 +246,14 @@ impl Bitwise for [u8] {
         self
     }
 
-    #[inline]
     fn bit_all_zero(&self) -> bool {
         self.iter().all(|&b| b == 0)
     }
 
-    #[inline]
     fn bit_all_one(&self) -> bool {
         self.iter().all(|&b| b == 0xff)
     }
 
-    #[inline]
     fn bit_leading_zeros(&self) -> usize {
         match self.iter().position(|&b| b != 0) {
             Some(n) => n * 8 + self[n].leading_zeros() as usize,
@@ -272,7 +261,6 @@ impl Bitwise for [u8] {
         }
     }
 
-    #[inline]
     fn bit_trailing_zeros(&self) -> usize {
         match self.iter().rposition(|&b| b != 0) {
             Some(n) => (self.len() - 1 - n) * 8 + self[n].trailing_zeros() as usize,
@@ -280,30 +268,29 @@ impl Bitwise for [u8] {
         }
     }
 
-    #[inline]
-    fn bit_fill(&mut self) -> &mut Self {
-        self.iter_mut().for_each(|b| *b = 0xff);
-        self
-    }
-
-    #[inline]
-    fn bit_clear(&mut self) -> &mut Self {
-        self.iter_mut().for_each(|b| *b = 0);
-        self
-    }
-
-    #[inline]
     fn bit_get(&self, index: usize) -> bool {
         self[index / 8] & (1 << (7 - index % 8)) != 0
     }
 
-    #[inline]
     fn bit_set(&mut self, index: usize, value: bool) -> &mut Self {
         match value {
             true => self[index / 8] |= 1 << (7 - index % 8),
             false => self[index / 8] &= !(1 << (7 - index % 8)),
         }
         self
+    }
+
+    fn bit_fill(&mut self, value: bool) -> &mut Self {
+        self.iter_mut()
+            .for_each(|b| *b = if value { 0xff } else { 0 });
+        self
+    }
+
+    fn bit_fmt(&self) -> String {
+        self.iter()
+            .map(|&b| format!("{b:08b}"))
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 }
 

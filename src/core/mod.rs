@@ -2,7 +2,6 @@ mod arith;
 mod bitwise;
 mod convert;
 mod iter;
-mod range;
 
 pub use arith::BitArith;
 pub use bitwise::Bitwise;

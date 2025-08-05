@@ -49,7 +49,6 @@
 //! ```
 
 pub mod core;
-mod range;
 mod xbits;
 
 pub use core::{FromBits, ToBits};

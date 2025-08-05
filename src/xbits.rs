@@ -41,7 +41,9 @@ impl AsBitsMut for Vec<u8> {
     }
 }
 
-/// A reference to a byte array that allows for bit-level operations.
+/// A wrapper to a byte array that allows for bit-level operations.
+/// It provides easy to use methods for checking bit states, iterating over bits,
+/// and performing bitwise operations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BitsRef<'a>(pub &'a [u8]);
 
@@ -49,6 +51,18 @@ impl BitsRef<'_> {
     #[inline(always)]
     pub fn as_bytes(&self) -> &[u8] {
         self.0
+    }
+
+    /// Returns true if the byte array is empty.
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    /// Returns the number of bits in the byte array.
+    #[inline(always)]
+    pub fn len(&self) -> usize {
+        self.0.len() * 8
     }
 
     #[inline(always)]
@@ -85,7 +99,25 @@ impl BitsRef<'_> {
     }
 }
 
-/// A mutable reference to a byte array that allows for bit-level operations.
+impl std::ops::Index<usize> for BitsRef<'_> {
+    type Output = bool;
+
+    #[inline(always)]
+    fn index(&self, index: usize) -> &Self::Output {
+        if self.0.bit_get(index) { &true } else { &false }
+    }
+}
+
+impl std::fmt::Display for BitsRef<'_> {
+    #[inline(always)]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0.bit_fmt())
+    }
+}
+
+/// A mutable wrapper to a byte array that allows for bit-level operations.
+/// It provides methods for shifting, bitwise operations, and reversing bits.
+/// It can be used to modify the underlying byte array directly.
 #[derive(Debug, PartialEq, Eq)]
 pub struct BitsMut<'a>(pub &'a mut [u8]);
 
@@ -96,12 +128,14 @@ impl BitsMut<'_> {
     }
 
     #[inline(always)]
-    pub fn shl(self, n: usize) -> Self {
-        self.0.bit_shl(n);
+    #[allow(clippy::should_implement_trait)]
+    pub fn shl(self, rhs: usize) -> Self {
+        self.0.bit_shl(rhs);
         self
     }
 
     #[inline(always)]
+    #[allow(clippy::should_implement_trait)]
     pub fn shr(self, n: usize) -> Self {
         self.0.bit_shr(n);
         self
@@ -125,28 +159,8 @@ impl BitsMut<'_> {
         self
     }
 
-    #[deprecated(note = "Use `or` instead")]
     #[inline(always)]
-    pub fn be_or<U: Into<u64>>(self, other: U) -> Self {
-        self.0.bit_be_or(&other.into().to_be_bytes());
-        self
-    }
-
-    #[deprecated(note = "Use `and` instead")]
-    #[inline(always)]
-    pub fn be_and<U: Into<u64>>(self, other: U) -> Self {
-        self.0.bit_be_and(&other.into().to_be_bytes());
-        self
-    }
-
-    #[deprecated(note = "Use `xor` instead")]
-    #[inline(always)]
-    pub fn be_xor<U: Into<u64>>(self, other: U) -> Self {
-        self.0.bit_be_xor(&other.into().to_be_bytes());
-        self
-    }
-
-    #[inline(always)]
+    #[allow(clippy::should_implement_trait)]
     pub fn not(self) -> Self {
         self.0.bit_not();
         self
@@ -157,40 +171,24 @@ impl BitsMut<'_> {
         self.0.bit_reverse();
         self
     }
-}
 
-impl std::fmt::Display for BitsRef<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut s = String::new();
-        for byte in self.0.iter() {
-            s.push_str(&format!("{byte:08b} "));
-        }
-        write!(f, "{}", s.trim())
+    #[inline(always)]
+    pub fn fill(self, value: bool) -> Self {
+        self.0.bit_fill(value);
+        self
+    }
+
+    #[inline(always)]
+    pub fn set(self, index: usize, value: bool) -> Self {
+        self.0.bit_set(index, value);
+        self
     }
 }
 
 impl std::fmt::Display for BitsMut<'_> {
+    #[inline(always)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut s = String::new();
-        for byte in self.0.iter() {
-            s.push_str(&format!("{byte:08b} "));
-        }
-        write!(f, "{}", s.trim())
-    }
-}
-
-impl std::ops::Index<usize> for BitsRef<'_> {
-    type Output = bool;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        if index >= self.0.len() * 8 {
-            panic!("Index out of bounds");
-        }
-        let byte_index = index / 8;
-        let bit_index = index % 8;
-        let byte = self.0[byte_index];
-        let bit = (byte >> (7 - bit_index)) & 1;
-        if bit == 1 { &true } else { &false }
+        write!(f, "{}", self.0.bit_fmt())
     }
 }
 
@@ -200,15 +198,39 @@ mod tests {
     use crate::ToBits;
 
     #[test]
-    fn test_bits() {
+    fn test_xbits() {
         let mut buf = [0b00000001_u8, 0b00000010, 0b00000100];
-        let _xbits = buf.as_bits();
-        let _xbits = buf[0..2].as_bits_mut().or(1024_u16.to_bits());
+        assert_eq!(buf.as_bits().to_string(), "00000001 00000010 00000100");
 
+        // xor
+        assert_eq!(
+            buf.clone()
+                .as_bits_mut()
+                .xor(5555_u16.to_bits())
+                .xor(5555_u64.to_bits())
+                .0,
+            buf
+        );
+
+        // index
         for i in 0..buf.len() {
             assert_eq!(buf.as_bits()[i], buf.as_bits().iter().nth(i).unwrap());
         }
 
+        // as_ref
+        let _ = buf
+            .as_bits_mut()
+            .and(88.to_bits())
+            .not()
+            .set(5, true)
+            .or(0xff.to_bits())
+            .reverse()
+            .shl(3)
+            .shr(5)
+            .to_ref()
+            .leading_zeros();
+
+        // reverse
         let mut vs = [0b1111_1111, 0b1100_0000];
         vs.as_bits_mut().reverse();
         assert_eq!(vs, [0b0000_0011, 0b1111_1111]);
@@ -222,5 +244,12 @@ mod tests {
             .or(0b11111111_u8.to_bits())
             .xor(0b11110000_u8.to_bits());
         assert_eq!(buf, [0b00000010_u8, 0b00000100, 0b00001111]);
+        assert_eq!(buf.as_bits()[6], true);
+        assert_eq!(buf.as_bits()[7], false);
+        buf.as_bits_mut().set(11, true);
+        assert_eq!(buf.as_bits()[11], true);
+
+        assert_eq!(buf.as_bits_mut().fill(false).to_ref().all_zero(), true);
+        assert_eq!(buf.as_bits_mut().fill(true).to_ref().all_one(), true);
     }
 }
