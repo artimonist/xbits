@@ -97,8 +97,14 @@ impl BitsRef<'_> {
     {
         self.0.bit_chunks(n)
     }
-}
 
+    // pub fn range(&self, range: std::ops::Range<usize>) -> RangeRef<'_> {
+    //     RangeRef {
+    //         data: self.0,
+    //         range,
+    //     }
+    // }
+}
 impl std::ops::Index<usize> for BitsRef<'_> {
     type Output = bool;
 
@@ -183,6 +189,13 @@ impl BitsMut<'_> {
         self.0.bit_set(index, value);
         self
     }
+
+    // pub fn range(&self, range: std::ops::Range<usize>) -> RangeMut<'_> {
+    //     RangeMut {
+    //         data: self.0,
+    //         range,
+    //     }
+    // }
 }
 
 impl std::fmt::Display for BitsMut<'_> {
