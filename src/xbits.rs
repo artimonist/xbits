@@ -220,10 +220,10 @@ mod tests {
         // as_ref
         let _ = buf
             .as_bits_mut()
-            .and(88.to_bits())
+            .and(88_u16.to_bits())
             .not()
             .set(5, true)
-            .or(0xff.to_bits())
+            .or(0xff_u32.to_bits())
             .reverse()
             .shl(3)
             .shr(5)
